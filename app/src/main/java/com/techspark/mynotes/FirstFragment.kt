@@ -176,4 +176,8 @@ class FirstFragment : Fragment() {
     fun number2(){
         Toast.makeText(requireContext(),a.toString(),Toast.LENGTH_SHORT).show()
     }
+
+    fun gitTest():String{
+        return ""
+    }
 }
