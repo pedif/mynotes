@@ -1,6 +1,5 @@
 package com.techspark.mynotes
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +8,9 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.preference.PreferenceManager
+import com.techspark.mynotes.db.NoteDb
+import com.techspark.mynotes.db.PreferenceManager
+import com.techspark.mynotes.model.Note
 import kotlinx.android.synthetic.main.fragment_first.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -37,6 +38,7 @@ class FirstFragment : Fragment() {
     lateinit var textViewList:ArrayList<TextView>
     val timeView = ArrayList<TextView>()
     var counter = 0
+    lateinit var manager: PreferenceManager
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -44,6 +46,7 @@ class FirstFragment : Fragment() {
 //            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
 //        }
 
+        manager = PreferenceManager(requireActivity())
         textViewList = ArrayList<TextView>()
         textViewList.add(text_0)
         textViewList.add(text_1)
@@ -53,7 +56,7 @@ class FirstFragment : Fragment() {
 
         var abc = 0
         while(abc<textViewList.size){
-            textViewList[abc].text = getNote(abc)
+            textViewList[abc].text = manager.getNote(abc)
             abc++
         }
 
@@ -73,10 +76,11 @@ class FirstFragment : Fragment() {
 
     fun addNote() {
         val calendar = Calendar.getInstance()
+        val time:Long = calendar.timeInMillis
 
         var currentDateTimeString: String =java.text.DateFormat.getDateTimeInstance().format(Date()) // 12/13/2020, 11:11 AM
         var a = SimpleDateFormat("EEE, MMM d, ''yy hh:mm:ss")
-        var ourFormat = a.format(Date())
+        var timeLabel = a.format(Date())
 
         /**
          *  12/13/2020, 11:11AM
@@ -106,7 +110,7 @@ class FirstFragment : Fragment() {
          * Textview ra be tartib por kon
          */
         textViewList[counter].text = note
-        textViewList[counter].text = ourFormat
+        textViewList[counter].text = timeLabel
 
         /**
          * timeview[counter].text = time
@@ -115,7 +119,20 @@ class FirstFragment : Fragment() {
         /**
          * Save kone note ro
          */
-        saveNote(note,counter)
+//        manager.setNote(note,counter)
+        manager.save(note,counter,PreferenceManager.TYPE_NOTE)
+        manager.save(timeLabel,counter,PreferenceManager.TYPE_TIME)
+        manager.save("asdf", counter, "aape")
+        manager.save("asdfasdfsad",counter,PreferenceManager.TYPE_CAR)
+
+
+
+        manager.setTime(time, counter)
+        manager.setNote(note, counter)
+        /**
+         * manager.setAape("adfc",counter)
+         * managre.setCar("akdjshfjk", counter)
+         */
 
         counter++
 
@@ -130,41 +147,7 @@ class FirstFragment : Fragment() {
          */
     }
 
-    fun saveNote(text: String, id: Int){
-        // "a"+b
-        //"a$text"
-        /**
-         * var day = 6
-         * Java = "Today is" + day +" of this month"   =>  Today is 6 of this month
-         * Kotlin = "Today is $day of this month"  => Today is 6 of this month
-         * Kotlin = "Today is day of this month" => Today is day of this month
-         */
-        /**
-         * id  = 0  => kelid = note0
-         * id = 1 =>kelid = note1
-         */
-        //
-        val pref = activity?.getPreferences(Context.MODE_PRIVATE)
-            val edit = pref?.edit()
-            if (edit != null) {
-                edit.putString("note$id", text)
-                edit.apply()
-            }
 
-    }
-
-    fun getNote(dini: Int):String {
-        /**
-         * Armin = 0 =>   note0
-         * armin = 1 => note1
-         */
-
-        val a = "" // yek string ke mohtavash khalie
-        val b = null//hichi
-        val pref = activity?.getPreferences(Context.MODE_PRIVATE)
-
-        return pref?.getString("note$dini","").toString()
-    }
 
     var a = 30
 
@@ -177,7 +160,4 @@ class FirstFragment : Fragment() {
         Toast.makeText(requireContext(),a.toString(),Toast.LENGTH_SHORT).show()
     }
 
-    fun gitTest():String{
-        return ""
-    }
 }
