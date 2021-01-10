@@ -6,6 +6,13 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.techspark.mynotes.model.Note
 
+/**
+ *
+ * Database  is a table
+ *
+ *
+ *
+ */
 @Database(entities = [Note::class],version = 1)
 abstract class NoteDb: RoomDatabase() {
 

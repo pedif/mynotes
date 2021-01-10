@@ -8,6 +8,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
 import com.techspark.mynotes.db.NoteDb
 import com.techspark.mynotes.db.PreferenceManager
 import com.techspark.mynotes.model.Note
@@ -21,6 +22,8 @@ import kotlin.collections.ArrayList
  */
 class FirstFragment : Fragment() {
 
+    //LiveData
+    lateinit var noteLiveData: LiveData<MutableList<Note>>
     /**
      * Requirements:
      * Save kardan  =>  File, Database, Cloud
@@ -46,6 +49,7 @@ class FirstFragment : Fragment() {
 //            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
 //        }
 
+        noteLiveData = NoteDb.getInstance(requireContext()).noteDao.get()
         manager = PreferenceManager(requireActivity())
         textViewList = ArrayList<TextView>()
         textViewList.add(text_0)
@@ -54,11 +58,44 @@ class FirstFragment : Fragment() {
         textViewList.add(text_3)
         textViewList.add(text_4)
 
-        var abc = 0
-        while(abc<textViewList.size){
-            textViewList[abc].text = manager.getNote(abc)
-            abc++
-        }
+        /**
+         * ta vaghti ke counter kuchiktar az list.size bud meghdare list[counter] ro beriz tuye textviewList[counter]
+         *
+         *ozv akhar list ro beriz tuye ozve 0 textviewlist
+         * ozv yeki munder be akhare  list ro beriz tuye ozve 1 textviewList
+         * ozv 2ta munder be akhare list ro beriz tuye ozve  2 textviewList
+         *
+         * noteList = {a,b,c,d,e,f,g,h,i,j,k,;,fjm,fs,df,a,df,df,a,df,af,asd,f,}
+         * TextViewList = {tv1,tv2,tv3,tv4,tv5}
+         *
+         * tv1 = e
+         * tv2 = d
+         * tv3 = c
+         * tv4 = b
+         * tv5 = a
+         *
+         * 0 = 4
+         * 1 = 3
+         * 2 = 2
+         * 3 = 1
+         * 4 = 0
+         *
+         */
+        //Load mikone
+        // Automat harvaght db tagheer bokone in ghesmat ejra mishe
+        noteLiveData.observe(viewLifecycleOwner,{
+            var noteCounter= it.size-1
+            var tvCounter = 0
+            while(noteCounter >0){
+                val note = it[noteCounter]
+                textViewList[tvCounter].text = note.text
+                tvCounter++
+                noteCounter--
+                if(tvCounter == 5)
+                    break
+            }
+
+        })
 
         view.findViewById<Button>(R.id.btn_save).setOnClickListener {
 
@@ -98,7 +135,7 @@ class FirstFragment : Fragment() {
         /**
          * Biad text ro daryaft konad
          */
-        val note = text_note.text.toString()
+        val noteText = text_note.text.toString()
 
         /**
          * Edittext ra khali konad
@@ -107,28 +144,22 @@ class FirstFragment : Fragment() {
 
 
         /**
-         * Textview ra be tartib por kon
+         * Thread a => dao besaz
+         * note ro zakhire kon
+         * khodafez
          */
-        textViewList[counter].text = note
-        textViewList[counter].text = timeLabel
+        Thread(
+            Runnable {
+            val dao = NoteDb.getInstance(requireContext()).noteDao
+            val note = Note(0,noteText,time,time,1)
+            dao.add(note)
+        }).start()
 
         /**
-         * timeview[counter].text = time
+         * Coroutine
          */
 
-        /**
-         * Save kone note ro
-         */
-//        manager.setNote(note,counter)
-        manager.save(note,counter,PreferenceManager.TYPE_NOTE)
-        manager.save(timeLabel,counter,PreferenceManager.TYPE_TIME)
-        manager.save("asdf", counter, "aape")
-        manager.save("asdfasdfsad",counter,PreferenceManager.TYPE_CAR)
 
-
-
-        manager.setTime(time, counter)
-        manager.setNote(note, counter)
         /**
          * manager.setAape("adfc",counter)
          * managre.setCar("akdjshfjk", counter)

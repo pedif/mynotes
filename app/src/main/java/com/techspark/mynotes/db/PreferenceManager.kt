@@ -3,6 +3,21 @@ package com.techspark.mynotes.db
 import android.app.Activity
 import android.content.Context
 
+/**
+ *  //edit.putstring("armin", "12345")
+ *
+ * edit.putInt("pedram", 10)
+ *
+ * edit.getString("armin") = "12345"
+ * edit.getString("pedram") = "" //Error
+ *
+ *
+ *
+ *  Key         Value
+ *  key= armin   value = 12345
+ *  key = pedram   value = 10
+ *
+ */
 class PreferenceManager(private val activity: Activity) {
 
     companion object{
