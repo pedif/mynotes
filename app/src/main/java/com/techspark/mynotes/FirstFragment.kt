@@ -1,5 +1,8 @@
 package com.techspark.mynotes
 
+import android.graphics.Paint
+import android.graphics.drawable.ShapeDrawable
+import android.graphics.drawable.shapes.RectShape
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +12,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.techspark.mynotes.db.NoteDb
 import com.techspark.mynotes.db.PreferenceManager
 import com.techspark.mynotes.model.Note
@@ -38,8 +42,6 @@ class FirstFragment : Fragment() {
     }
 
 
-    lateinit var textViewList:ArrayList<TextView>
-    val timeView = ArrayList<TextView>()
     var counter = 0
     lateinit var manager: PreferenceManager
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -51,13 +53,34 @@ class FirstFragment : Fragment() {
 
         noteLiveData = NoteDb.getInstance(requireContext()).noteDao.get()
         manager = PreferenceManager(requireActivity())
-        textViewList = ArrayList<TextView>()
-        textViewList.add(text_0)
-        textViewList.add(text_1)
-        textViewList.add(text_2)
-        textViewList.add(text_3)
-        textViewList.add(text_4)
 
+        val adapter = NoteAdapter(
+            OnclickListener { item ->
+                Thread {
+//                    val dao = NoteDb.getInstance(requireContext()).noteDao
+//                    dao.delete(item)
+                    val dao = NoteDb.getInstance(requireContext()).noteDao
+                    item.time = System.currentTimeMillis()
+                    dao.edit(item)
+                }.start()
+
+            }
+        )
+        list_note.adapter = adapter
+
+
+        list_note.addItemDecoration(
+            DividerItemDecoration(
+                activity,
+                DividerItemDecoration.VERTICAL
+            ).also {
+                with(ShapeDrawable(RectShape())) {
+                    intrinsicHeight = 10
+                    alpha = 0
+                    it.setDrawable(this)
+                }
+            }
+        )
         /**
          * ta vaghti ke counter kuchiktar az list.size bud meghdare list[counter] ro beriz tuye textviewList[counter]
          *
@@ -81,19 +104,9 @@ class FirstFragment : Fragment() {
          * 4 = 0
          *
          */
-        //Load mikone
-        // Automat harvaght db tagheer bokone in ghesmat ejra mishe
         noteLiveData.observe(viewLifecycleOwner,{
-            var noteCounter= it.size-1
-            var tvCounter = 0
-            while(noteCounter >0){
-                val note = it[noteCounter]
-                textViewList[tvCounter].text = note.text
-                tvCounter++
-                noteCounter--
-                if(tvCounter == 5)
-                    break
-            }
+
+            (list_note.adapter as NoteAdapter).submitList(it)
 
         })
 

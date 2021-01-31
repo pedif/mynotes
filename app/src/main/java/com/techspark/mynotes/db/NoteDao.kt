@@ -7,7 +7,13 @@ import com.techspark.mynotes.model.Note
 
 /***
  * NoteDao.add(note)
- *
+ * n = 70
+ * o = 71
+ * d = 63
+ * =>10
+ * p1m
+ * => -10
+ * nod
  */
 @Dao
 interface NoteDao {
